@@ -13,4 +13,6 @@ class IType:
         linecontent=line.split()
         flag=False
         index=-1
+        for key in instructions.keys():
+            
         return
