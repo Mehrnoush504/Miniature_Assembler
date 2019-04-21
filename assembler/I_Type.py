@@ -29,8 +29,4 @@ class IType:
         fields=linecontent[index].split(',')
         return
 =======
-        for key in instructions.keys():
-            
-        return
->>>>>>> 93df6d6d45befffc26a263107e45b1dc19399855
-        return
+       
