@@ -13,4 +13,18 @@ class IType:
         linecontent=line.split()
         flag=False
         index=-1
+        print linecontent
+        for key in self.instructions.keys():
+            if linecontent[0]==key:
+                op=self.instructions[key]
+                index=1
+                flag=True
+                break
+        if flag==False:
+            for key in self.instructions.keys():
+                if linecontent[1]==key:
+                    op=self.instructions[key]
+                    index=2
+                    break
+        fields=linecontent[index].split(',')
         return
