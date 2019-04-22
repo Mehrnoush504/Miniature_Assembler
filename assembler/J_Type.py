@@ -32,8 +32,8 @@ class JType:
                     zero=''
                     for i in range(0,16-len(target)):
                         zero+='0'
-                        target=zero+ target
-                        break
+                    target=zero+ target
+                    break
         elif op='halt':
             target='0000000000000000'
 
