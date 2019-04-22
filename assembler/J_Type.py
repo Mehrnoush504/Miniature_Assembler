@@ -11,16 +11,16 @@ class JType:
         linecontent=line.splite()
         flag=False
         index=-1
-        for key in this.instructions.key():
+        for key in self.instructions.keys():
             if linecontent[0]==key:
-                op=this.instructions[key]
+                op=self.instructions[key]
                 index=1
                 flag=True
                 break
             if not flag:
-                for key in this.instructions.key():
+                for key in self.instructions.keys():
                     if linecontent[1]==key:
-                        op=this.instructions[key]
+                        op=self.instructions[key]
                         index=2
                         break
         if op=='j':
