@@ -27,6 +27,7 @@ class IType:
                     index=2
                     break
         fields=linecontent[index].split(',')
+<<<<<<< HEAD
         if linecontent[index-1]=='lui'     #neveshte shavadddd
              found =False
              for key in registers.keys():
@@ -48,3 +49,8 @@ class IType:
 
 
         return
+=======
+        return
+=======
+       
+>>>>>>> 66f64184b2a69bad63b2408078bc42be4f53ee1a
