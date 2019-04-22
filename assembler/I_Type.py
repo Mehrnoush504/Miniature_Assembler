@@ -27,4 +27,24 @@ class IType:
                     index=2
                     break
         fields=linecontent[index].split(',')
+        if linecontent[index-1]=='lui'     #neveshte shavadddd
+             found =False
+             for key in registers.keys():
+                 if fields[0]==key:
+                   rt=registers[key]
+                   found=True
+                   break
+             if found==False:
+                 sys.exit('rt not found!')
+        for key in symbol_table.keys():
+            if fields[1]==key:
+                imm=str(decimal_to_binary(symbol_table[key]))
+        if len(imm)>16:
+            sys.exit('imm out of range!')
+        zero=''
+        for i in range (0,16-len(imm)):
+            zero+='0'
+        imm=zero+imm
+
+
         return
