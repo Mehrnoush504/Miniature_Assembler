@@ -40,7 +40,7 @@ class JType:
                         zero += '0'
                     self.target = zero + self.target
                     break
-        elif self.op == '1110':
+        elif self.op == '1110':  # halt
             self.target = '0000000000000000'
 
         return '0000' + self.op + '00000000' + self.target
