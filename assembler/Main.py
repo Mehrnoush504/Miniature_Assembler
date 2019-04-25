@@ -1,296 +1,193 @@
-import  sys
-
-# function for turning decimal into binary
-
-def decimal_to_binary(num):
-    s = bin(num)
-    s = s[2:]
-    print(s)
-    return s
-
-def calcJtype(line, symbol_table,instructions):
-
-    op = ''
-    target = ''
-
-    linecontent=line.splite()
-    flag=False
-    index=-1
-    for key in instructions.keys():
-        if linecontent[0]==key:
-            op=instructions[key]
-            index=1
-            flag=True
-            break
-        if not flag:
-            for key in instructions.keys():
-                if linecontent[1]==key:
-                    op=instructions[key]
-                    index=2
-                    break
-    if op=='j':
-        for key in symbol_table.keys():
-            if linecontent[index]==key:
-                target+=str(desimal_to_inary(symbol_table[key]))
-                if len(target)>16:
-                    sys.exit('target out of range')
-                zero=''
-                for i in range(0,16-len(target)):
-                    zero+='0'
-                target=zero+ target
-                break
-    elif op=='halt':
-        target='0000000000000000'
-
-    return'0000'+op+'00000000'+target
+import os
+import sys
+import decimal_and_binary_converter as db
+from R_Type import RType
+from I_Type import IType
+from J_Type import JType
 
 
+# function for creating instruction table
+def instruction_table():
+    instructions = {"add": "0000", "sub": "0001", "slt": "0010", "or": "0011", "nand": "0100", "addi": "0101",
+                    "slti": "0110", "ori": "0111", "lui": "1000", "lw": "1001", "sw": "1010", "beq": "1011",
+                    "jalr": "1100", "j": "1101", "halt": "1110"}  # what about "1111" ?
+    return instructions
 
 
+# function for creating register table
+def register_table():
+    registers = {0: "0000", 1: "0001", 2: "0010", 3: "0011", 4: "0100", 5: "0101", 6: "0110", 7: "0111", 8: "1000",
+                 9: "1001", 10: "1010", 11: "1011", 12: "1100", 13: "1101", 14: "1110", 15: "1111"}
+    return registers
 
 
-
-def calcRtype(line, registers,instructions):
-
-    op = ''
-    rs = ''
-    rt = ''
-    rd = ''
-
-    linecontent = line.split()
-    flag = False
-    index = -1
-    for key in instructions.keys():
-        if linecontent[0] == key:
-            op = instructions[key]
-            flag = True
-            index = 1
-            break
-    if not flag:
-        for key in instructions.keys():
-            if linecontent[1] == key:
-                op = instructions[key]
-                flag = True
-                index = 2
-                break
-    fields = linecontent[index].split(',')
-    found = False
-    for key in registers.keys():
-        if fields[0] == key:
-            rd = registers[key]
-            found = True
-            break
-    if not found:
-        sys.exit('R_type : rd not found')
-
-    found = False
-    for key in registers.keys():
-        if fields[1] == key:
-            rs = registers[key]
-            found = True
-            break
-    if not found:
-        sys.exit('R_type : rs not found')
-
-    found = False
-    for key in registers.keys():
-        if fields[2] == key:
-            rt = registers[key]
-            found = True
-            break
-    if not found:
-        sys.exit('R_type : rt not found')
-
-    return '0000' + op + rs + rt + rd + '000000000000'
+# function for reading reading information from command line
+def read_form_cmd():
+    input1 = input()
+    list1 = input1.split()
+    return list1
 
 
+# function for reading information from given file
+def read_from_file(assembly_file_name):
+    content = open(assembly_file_name, 'r')
+    # content.close() # remember to close the file at the end of your work
+    return content
 
 
+# function for writing information to given file
+def write_to_file(file_name, machine_codes):
+
+    output_file = open(file_name, 'w')
+
+    for item in machine_codes:
+        code = str(item) + '\n'
+        output_file.write(code)  # this is just an example it needs more work on it
+    output_file.close()
+
+    return
 
 
+# function for checking multiple definition of one label
+def multiple_definition_of_one_label(symbol_table, label):
+    for key in symbol_table.keys():
+        if key == label:
+            return True
+    return False
 
 
-def calcItype(line, pc, symbol_table,registers,instructions):
+# function for making symbol table
+def create_symbol_table(file_list, instructions):
+    symbol_table = dict()
+    line = -1
+    for item in file_list:
+        line += 1
+        line_content = item.split()
+        if len(line_content) == 0:
+            continue
+        flag = False
+        for key in instructions.keys():  # I have to correct this
+            if key == line_content[0].lower():
+                if multiple_definition_of_one_label(symbol_table, line_content[0]):
+                    sys.exit(1)
+                if len(line_content) >= 2:
+                    for k in instructions.keys():
+                        if k == line_content[1]:
+                            sys.exit(1)
 
-    op = ''
-    rs = ''
-    rt = ''
-    imm = ''
-    linecontent = line.split()
-    flag = False
-    index = -1
-    for key in instructions.keys():
-        if linecontent[0] == key:
-            op = instructions[key]
-            index = 1
-            flag = True
-            break
-    if flag == False:
-        for key in instructions.keys():
-            if linecontent[1] == key:
-                op = instructions[key]
-                index = 2
-                break
-
-    fields = linecontent[index].split(',')
-
-    if linecontent[index - 1] == 'lui':
-        found = False
-        for key in registers.keys():
-            if fields[0] == key:
-                rt = registers[key]
-                found = True
-                break
-        if found == False:
-            sys.exit('I_type:rt not found!')
-        for key in symbol_table.keys():
-            if fields[1] == key:
-                imm = str(decimal_to_binary(symbol_table[key]))
-        if len(imm) > 16:
-            sys.exit('I_type:imm out of range!')
-        zero = ''
-        for i in range(0, 16 - len(imm)):
-            zero += '0'
-        imm = zero + imm
-    elif linecontent[index - 1] == 'jalr':
-        found = False
-        for key in registers.keys():
-            if fields[0] == key:
-                rt = registers[key]
-                found = True
-                break
-        if found == False:
-            sys.exit('I_type:rt not found!')
-
-        found = False
-        for key in registers.keys():
-            if fields[1] == key:
-                rs = registers[key]
-                found = True
-                break
-        if found == False:
-            sys.exit('I_type:rs not found!')
-
-        for i in range(0, 16):
-            imm += '0'
-    else:
-        found = False
-        for key in registers.keys():
-            if fields[0] == key:
-                rt = registers[key]
-                found = True
-                break
-        if found == False:
-            sys.exit('I_type:rt not found!')
-
-        found = False
-        for key in registers.keys():
-            if fields[1] == key:
-                rs = registers[key]
-                found = True
-                break
-        if found == False:
-            sys.exit('I_type:rs not found!')
-
-        # az inja be payin chek shavad
-        flage = False
-        for key in symbol_table.keys():
-            if fields[2] == key:
-                imm = str(desimal_to_bainary(symbol_table[key]))
-                if len(imm) > 16:
-                    sys.exit('I_type:imm out of range!')
-                zero = ''
-                for i in range(0, 16 - len(imm)):
-                    zero += '0'
-                imm += zero
                 flag = True
 
-            if flage == False and not isdigit(fields[2]):
-                sys.exit('I_type: incorect imm')
+        if flag:
+            continue
+        symbol_table.update({line_content[0]: line})
 
-            elif isdigit(fields[2]):
-                num = int(fields[2])
-                imm = str(decimal_to_binary(num))
-                if len(imm) > 16:
-                    sys.exit('I_type:imm out of range!')
-                zero = ''
-                for i in range(0, 16 - len(imm)):
-                    zero += '0'
-                imm += zero
+    return symbol_table
 
-        if linecontent[index - 1] == 'beq':
-            lable = -1
-            lable = int(imm)
-            if lable - pc - 1 >= 0:
-                imm = str(lable - pc - 1)
+
+def process():
+    machine_codes = list()
+    incoming_list = read_form_cmd()
+    file_content = read_from_file(incoming_list[1])
+    # pay attention to read_form_file function after using it you have to close the file
+
+    registers = register_table()
+    file_list = list()
+
+    # take every line of given file as an element of file_list
+    for line in file_content.readlines():
+        file_list.append(line)
+
+    symbol_table = create_symbol_table(file_list, instruction_table())
+    print("final symbol table is: ", symbol_table)
+    # take every element of file_list and remove the spaces every element and put them in line_content
+    pc = 0
+    for item in file_list:
+        line_content = item.split()
+        # check every element of line content in order  to understand what is that element
+        if len(line_content) == 0:
+            continue
+        index = 0
+
+        rt = RType()
+        it = IType()
+        jt = JType()
+
+        for key in symbol_table.keys():
+            if key == line_content[0]:
+                index = 1
+        check = check_type(line_content[index])
+        if check == 'r':
+            machine_codes.append(db.binary_to_decimal(rt.calc(item, registers)))
+        elif check == 'i':
+            machine_codes.append(db.binary_to_decimal(it.calc(item, pc, symbol_table, registers)))
+        elif check == 'j':
+            machine_codes.append(db.binary_to_decimal(jt.calc(item, symbol_table)))
+        elif check == 'd':
+            if line_content[index] == '.fill':
+                flag = False
+                for key in symbol_table.keys():
+                    if key == line_content[index+1]:
+                        machine_codes.append(symbol_table[key])
+                        flag = True
+                        break
+
+                if not flag:
+                    num = line_content[index+1].lstrip('-')
+                    if num.isdigit():
+                        machine_codes.append(int(line_content[index+1]))
+                        flag = True
+
+                if not flag:
+                    sys.exit('.fill value not found')
+
+            elif line_content[index] == '.space':
+                size = 0
+                flag = False
+                for key in symbol_table.keys():
+                    if key == line_content[index + 1]:
+                        size = symbol_table[key]
+                        flag = True
+                        break
+
+                if not flag:
+                    if line_content[index + 1].isdigit():
+                        size = int(line_content[index + 1])
+                        flag = True
+
+                if not flag:
+                    sys.exit('process: wrong .space value')
+                for i in range(0, size):
+                    machine_codes.append(0)
 
         else:
-            imm = two_comp(lable - pc - 1)
+            sys.exit('process: instruction not found!')
+        pc += 1
+    print('machine codes: ', machine_codes)
+    write_to_file(incoming_list[2], machine_codes)
+    return
 
-    return '0000' + op + rs + rt + imm
+
+def check_type(instruction):
+
+    for key in RType.instructions.keys():
+        if instruction == key:
+            return 'r'
+    for key in IType.instructions.keys():
+        if instruction == key:
+            return 'i'
+    for key in JType.instructions.keys():
+        if instruction == key:
+            return 'j'
+    if instruction == '.fill' or instruction == '.space':
+        return 'd'
+
+    return ''
 
 
 # main function
 def main():
-    file=open('C:/Users/ErfanN/PycharmProjects/untitled1/venv/program.ac.txt','r')
-    register=dict()
-    register={'0':'0','1':'1',}
-    R_instructions = dict()
-    R_instructions = {'add': '0000', 'sub': '0001', 'slt': '0010', 'or': '0011', 'nand': '0100'}
-    I_instructions = dict()
-    I_instructions = {'addi': '0101', 'ori': '0111', 'slti': '0110', 'lui': '1000', 'lw': '1001', 'sw': '1010',
-                      'beq': '1011', 'jalr': '1100'}
-    J_instructions = dict()
-    J_instructions = {'j': '1101', 'halt': '1110'}
-
-    i=0
-    type=''
-    symbol_table = list()
-    for line in file:
-          ch = line.split()
-          if not( line.startswith(' ') or line.startswith('\t')):
-               symbol_table.append(str(i)+' '+ch[0])
-               for item in R_instructions:
-                   if item==ch[1]:
-                       type='r'
-                       break
-               for item in J_instructions:
-                   if item==ch[1]:
-                       type='j'
-                       break
-               for item in I_instructions:
-                   if item==ch[1]:
-                       type='i'
-                       break
-          else :
-              for item in R_instructions:
-                  if item == ch[0]:
-                      type = 'r'
-                      break
-              for item in J_instructions:
-                  if item == ch[0]:
-                      type = 'j'
-
-                      break
-              for item in I_instructions:
-                  if item == ch[0]:
-                      type = 'i'
-
-                      break
-          i+=1
-          if type=='r':
-              calcRtype(line,register,R_instructions)
-          elif type=='j':
-              calcJtype(line,symbol_table,J_instructions)
-          elif type=='i':
-              calcItype(line,i,symbol_table,register,I_instructions)
-
-    file.close()
-    sys.exit(0)
+    process()
 
 
 if __name__ == '__main__':
-      main()
-
-
-
+    main()
