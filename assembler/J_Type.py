@@ -30,6 +30,8 @@ class JType:
                     break
 
         if self.op == '1101':  # j
+            flag=False
+           # if line_content[index]:            dfghjhgffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
             for key in symbol_table.keys():
                 if line_content[index] == key:
                     self.target += str(db.decimal_to_binary(symbol_table[key]))
@@ -39,7 +41,10 @@ class JType:
                     for i in range(0, 16 - len(self.target)):
                         zero += '0'
                     self.target = zero + self.target
+                    flag=True
                     break
+            if not flag :
+                sys.exit('lable is not definded')
         elif self.op == '1110':  # halt
             self.target = '0000000000000000'
 
