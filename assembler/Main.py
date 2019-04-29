@@ -74,11 +74,12 @@ def create_symbol_table(file_list, instructions):
                     for k in instructions.keys():
                         if k == line_content[1]:
                             sys.exit(1)
-
                 flag = True
 
         if flag:
             continue
+        if multiple_definition_of_one_label(symbol_table, line_content[0]):
+            sys.exit('repeated label')
         symbol_table.update({line_content[0]: line})
 
     return symbol_table
@@ -168,7 +169,6 @@ def process():
 
 
 def check_type(instruction):
-
     for key in RType.instructions.keys():
         if instruction == key:
             return 'r'
