@@ -133,11 +133,11 @@ class IType:
                 self.imm = zero + imm
                 print('after digit', self.imm)
                 not_in_numbers = False
-            if line_content[index-1]=='slti':
-                if self.rs<self.imm:
-                    self.rt='0001'
-                else:
-                    self.rt='0000'
+         #   if line_content[index-1]=='slti':
+          #      if self.rs<self.imm:
+            #        self.rt='0001'
+          #      else:
+            #        self.rt='0000'
             in_beq = False
             if line_content[index - 1] == 'beq':
                 label = db.binary_to_decimal(self.imm)
