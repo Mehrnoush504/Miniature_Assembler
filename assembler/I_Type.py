@@ -35,8 +35,8 @@ class IType:
                     break
 
         fields = line_content[index].split(',')
-      
-            
+
+        print(fields)
         if line_content[index - 1] == 'lui':
             found = False
             for key in registers.keys():
@@ -110,45 +110,58 @@ class IType:
             # az inja be payin chek shavad
             not_in_symbols = True
             for key in symbol_table.keys():
+                print(key)
                 if fields[2] == key:
-                    imm = str(db.decimal_to_binary(symbol_table[key]))
-                    if len(imm) > 16:
+                    self.imm = str(db.decimal_to_binary(symbol_table[key]))
+                    if len(self.imm) > 16:
                         sys.exit('I_type:imm out of range!')
                     zero = ''
-                    for i in range(0, 16 - len(imm)):
+                    for i in range(0, 16 - len(self.imm)):
                         zero += '0'
-                    self.imm = zero + imm
+                    self.imm = zero + self.imm
                     print('after symbol', self.imm)
                     not_in_symbols = False
 
             not_in_numbers = True
-            if fields[2].isdigit():
-                num = int(fields[2])
-                imm = str(db.decimal_to_binary(num))
-                if len(imm) > 16:
-                    sys.exit('I_type:imm out of range!')
-                zero = ''
-                for i in range(0, 16 - len(imm)):
-                    zero += '0'
-                self.imm = zero + imm
-                print('after digit', self.imm)
+            f = fields[2].lstrip('-')
+            if f.isdigit():
+                #
                 not_in_numbers = False
-         #   if line_content[index-1]=='slti':
-          #      if self.rs<self.imm:
+                if fields[2].startswith('-'):
+                    self.imm += towComp.tow_comp(int(fields[2]))
+                    if len(self.imm) > 16:
+                        sys.exit('imm out of range')
+                    zero = ''
+                    for i in range(0, 16 - len(self.imm)):
+                        zero += '0'
+                    self.imm = zero + self.imm
+                    not_in_numbers = False
+                elif fields[2].isdigit():  # find digit target
+                    self.imm += str(db.decimal_to_binary(int(fields[2])))
+                    if len(self.imm) > 16:
+                        sys.exit('imm out of range')
+                    zero = ''
+                    for i in range(0, 16 - len(self.imm)):
+                        zero += '0'
+                    self.imm = zero + self.imm
+                    not_in_numbers = False
+                #
+            #   if line_content[index-1]=='slti':
+            #      if self.rs<self.imm:
             #        self.rt='0001'
-          #      else:
+            #      else:
             #        self.rt='0000'
             in_beq = False
             if line_content[index - 1] == 'beq':
                 label = db.binary_to_decimal(self.imm)
                 if label - pc - 1 >= 0:
-                    imm = str(db.decimal_to_binary(label - pc - 1))
-                    if len(imm)>16:
+                    self.imm = str(db.decimal_to_binary(label - pc - 1))
+                    if len(self.imm) > 16:
                         sys.exit('i type: in beq imm out of bound')
                     zero = ''
-                    for i in range(0, 16-len(imm)):
+                    for i in range(0, 16 - len(self.imm)):
                         zero += '0'
-                    self.imm = zero + imm
+                    self.imm = zero + self.imm
                     in_beq = True
                 else:
                     self.imm = towComp.tow_comp(label - pc - 1)

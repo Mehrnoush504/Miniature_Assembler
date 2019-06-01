@@ -16,16 +16,17 @@ def tow_comp(num):
         sys.exit('tow comp: len/imm out of range')
     zero = ''
     for i in range(0, 16-len(b)):
-        zero +='0'
+        zero += '0'
     binary = zero + b
     binary = reverse(binary)
     cnt = 0
     result = ''
     for i in range(0, 16):
-        if binary[i]=='1':
-            cnt += 1;
-        if cnt < 1:
+        if binary[i] == '1':
+            cnt += 1
+        if cnt <= 1:
             result += binary[i]
+            cnt += 1
         else:
             if binary[i] == '1':
                 result += '0'
@@ -33,5 +34,6 @@ def tow_comp(num):
                 result += '1'
             else:
                 sys.exit('two comp bad bit')
-
+    print(reverse(result))
     return reverse(result)
+

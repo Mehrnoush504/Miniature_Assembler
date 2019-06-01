@@ -119,16 +119,20 @@ def process():
         check = check_type(line_content[index])
         if check == 'r':
             machine_codes.append(db.binary_to_decimal(rt.calc(item, registers)))
+            print('first: ', machine_codes)
         elif check == 'i':
             machine_codes.append(db.binary_to_decimal(it.calc(item, pc, symbol_table, registers)))
+            print('second: ', machine_codes)
         elif check == 'j':
             machine_codes.append(db.binary_to_decimal(jt.calc(item, symbol_table)))
+            print('third: ', machine_codes)
         elif check == 'd':
             if line_content[index] == '.fill':
                 flag = False
                 for key in symbol_table.keys():
                     if key == line_content[index+1]:
                         machine_codes.append(symbol_table[key])
+                        print('forth: ', machine_codes)
                         flag = True
                         break
 
@@ -136,6 +140,7 @@ def process():
                     num = line_content[index+1].lstrip('-')
                     if num.isdigit():
                         machine_codes.append(int(line_content[index+1]))
+                        print('fifth: ', machine_codes)
                         flag = True
 
                 if not flag:
@@ -159,10 +164,13 @@ def process():
                     sys.exit('process: wrong .space value')
                 for i in range(0, size):
                     machine_codes.append(0)
+                print('6th: ', machine_codes)
 
         else:
             sys.exit('process: instruction not found!')
         pc += 1
+        if pc > 65536:
+            sys.exit('memory over fellow pc is more than 65536!')
     print('machine codes: ', machine_codes)
     write_to_file(incoming_list[2], machine_codes)
     return

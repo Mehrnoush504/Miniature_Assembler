@@ -31,7 +31,7 @@ class JType:
         if self.op == '1101':  # j
             flag=False
             if line_content[index].startswith('-'):
-                self.target+=towComp.tow_comp(int(line_content[index]))
+                self.target += towComp.tow_comp(int(line_content[index]))
                 if len(self.target) > 16:
                     sys.exit('target out of range')
                 zero = ''
@@ -39,7 +39,7 @@ class JType:
                     zero += '0'
                 self.target = zero + self.target
                 flag = True
-            elif line_content[index].isdigit():     #find digit target
+            elif line_content[index].isdigit():  #find digit target
                 self.target += str(db.decimal_to_binary(int(line_content[index])))
                 if len(self.target) > 16:
                     sys.exit('target out of range')
@@ -58,9 +58,9 @@ class JType:
                         for i in range(0, 16 - len(self.target)):
                             zero += '0'
                         self.target = zero + self.target
-                        flag=True
+                        flag = True
                         break
-            if not flag :
+            if not flag:
                 sys.exit('lable is not definded')
         elif self.op == '1110':  # halt
             self.target = '0000000000000000'
